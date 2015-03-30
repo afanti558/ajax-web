@@ -15,50 +15,54 @@
         <input type="reset" value="重置"/>
     </form>
 
-<script>
-    alert(2);
-    //①construct the Object XMLHttpRequest and modify the diffrent browser
-    /* Create a new XMLHttpRequest object to talk to the Web server */
-    var xmlHttp = false;
-    /*@cc_on @*/
-    /*@if (@_jscript_version >= 5)
-     try {
-     xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
-     } catch (e) {
-     try {
-     xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
-     } catch (e2) {
-     xmlHttp = false;
-     }
-     }
-     @end @*/
-
-    if (!xmlHttp &amp;&& typeof XMLHttpRequest != 'undefined') {
-        xmlHttp = new XMLHttpRequest();
+<script type="text/javascript">
+    var request;
+    // ②create an Object XMLHttpRequest to the variable request
+    function createRequest() {
+        try {
+            request = new XMLHttpRequest();
+        } catch (trymicrosoft) {
+            try {
+                request = new ActiveXObject("Msxml2.XMLHTTP");
+            } catch (othermicrosoft) {
+                try {
+                    request = new ActiveXObject("Microsoft.XMLHTTP");
+                } catch (failed) {
+                    request = false;
+                }
+            }
+        }
+        if (!request)
+            alert("Error initializing XMLHttpRequest!");
     }
 
-    // ②send a request to the service
+    // ②send a request to the service,but before that,the method createRequest should be use
     function callServer() {
-        alert("callServer");
+        createRequest();
         var userName = document.getElementById("userName").value;
         var password = document.getElementById("password").value;
 
         if ((userName == null) || (userName == "")) return;
         if ((password == null) || (password == "")) return;
 
-        alert(userName + "---" + password);
-        // Build the URL to connect to
         var url = "/ajax.json?userName=" + userName + "&password=" + password;
 //        http://localhost//ajax.json?userName=admin&password=123456
 
-        // Open a connection to the server
-        xmlHttp.open("GET", url, true);
+        request.open("GET", url, true);
 
-        // Setup a function for the server to run when it's done
-        xmlHttp.onreadystatechange = updatePage;
+        request.onreadystatechange = updatePage;
 
-        // Send the request
         xmlHttp.send(null);
+    }
+
+    function updatePage() {
+        if (request.readyState == 4)
+            if (request.status == 200)
+                alert("Server is done!");
+            else if (request.status == 404)
+                alert("Request URL does not exist");
+            else
+                alert("Error: status code is " + request.status);
     }
 
 </script>
